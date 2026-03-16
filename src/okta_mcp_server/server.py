@@ -7,11 +7,43 @@ from typing import Any
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from okta_mcp_server.okta_client import OktaClient
 
 # Load environment variables
 load_dotenv()
+
+
+class APIKeyAuthMiddleware(BaseHTTPMiddleware):
+    """Middleware to enforce API key authentication via x-api-key header."""
+
+    def __init__(self, app, api_key: str, exclude_paths: list[str] | None = None):
+        super().__init__(app)
+        self.api_key = api_key
+        self.exclude_paths = exclude_paths or []
+
+    async def dispatch(self, request: Request, call_next):
+        # Skip auth for excluded paths (e.g., /health)
+        if request.url.path in self.exclude_paths:
+            return await call_next(request)
+
+        # Check x-api-key header
+        provided_key = request.headers.get("x-api-key")
+        if not provided_key:
+            return JSONResponse(
+                {"error": "Unauthorized", "message": "Missing x-api-key header"},
+                status_code=401,
+            )
+        if provided_key != self.api_key:
+            return JSONResponse(
+                {"error": "Forbidden", "message": "Invalid API key"},
+                status_code=403,
+            )
+
+        return await call_next(request)
 
 # Global Okta client instance
 okta_client: OktaClient | None = None
@@ -205,8 +237,17 @@ def main():
 
     port = int(os.environ.get("PORT", 8000))
 
+    # Get API key from environment (required)
+    api_key = os.environ.get("MCP_API_KEY")
+    if not api_key:
+        raise ValueError("MCP_API_KEY environment variable is required")
+
     # Get the ASGI app for streamable HTTP transport
     app = mcp.streamable_http_app()
+
+    # Wrap with API key authentication middleware
+    # Exclude /health endpoint for monitoring/health checks
+    app = APIKeyAuthMiddleware(app, api_key, exclude_paths=["/health"])
 
     # Run with uvicorn for custom host/port
     # proxy_headers and forwarded_allow_ips for Railway reverse proxy

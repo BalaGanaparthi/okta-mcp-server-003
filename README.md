@@ -9,6 +9,7 @@ An MCP (Model Context Protocol) server for Okta user management. This server pro
 - **get_user** - Get user details by ID or login
 - **update_user** - Update user profile information
 - **delete_user** - Deactivate and delete a user
+- **API Key Authentication** - All MCP endpoints protected with `x-api-key` header
 
 ## Prerequisites
 
@@ -31,9 +32,10 @@ An MCP (Model Context Protocol) server for Okta user management. This server pro
 # Copy the example environment file
 cp .env.example .env
 
-# Edit .env with your Okta credentials
+# Edit .env with your credentials
 # OKTA_DOMAIN=dev-xxxxx.okta.com
 # OKTA_API_TOKEN=00xxxxxxxxxxxxxxxxxx
+# MCP_API_KEY=your-secret-api-key
 ```
 
 ### 2. Build and Run with Docker
@@ -48,15 +50,15 @@ docker-compose up --build
 ### 3. Test the Server
 
 ```bash
-# Check server health
+# Check server health (no auth required)
 curl http://localhost:8000/health
 
-# Test MCP endpoint (initialize a session)
+# Test MCP endpoint (requires x-api-key header)
 curl -X POST http://localhost:8000/mcp \
+  -H "x-api-key: your-secret-api-key" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0.0"}}}'
-
 ```
 
 ### 4. Test with MCP Inspector
@@ -86,6 +88,7 @@ In Railway dashboard, add these environment variables:
 | ---------------- | --------------------------------------------- |
 | `OKTA_DOMAIN`    | Your Okta domain (e.g., `dev-12345.okta.com`) |
 | `OKTA_API_TOKEN` | Your Okta API token                           |
+| `MCP_API_KEY`    | Secret API key for client authentication      |
 
 Railway automatically provides the `PORT` variable.
 
@@ -105,7 +108,10 @@ Add to your Claude Desktop MCP configuration (`claude_desktop_config.json`):
 {
   "mcpServers": {
     "okta": {
-      "url": "https://okta-mcp-server-003-production.up.railway.app/mcp"
+      "url": "https://okta-mcp-server-003-production.up.railway.app/mcp",
+      "headers": {
+        "x-api-key": "your-mcp-api-key"
+      }
     }
   }
 }
@@ -117,7 +123,10 @@ For local development:
 {
   "mcpServers": {
     "okta": {
-      "url": "http://localhost:8000/mcp"
+      "url": "http://localhost:8000/mcp",
+      "headers": {
+        "x-api-key": "your-mcp-api-key"
+      }
     }
   }
 }
