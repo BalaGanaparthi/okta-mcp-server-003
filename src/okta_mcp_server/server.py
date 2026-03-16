@@ -6,6 +6,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from okta_mcp_server.okta_client import OktaClient
 
@@ -28,8 +29,12 @@ async def lifespan(server: FastMCP):
             await okta_client.close()
 
 
-# Create MCP server
-mcp = FastMCP("Okta MCP Server", lifespan=lifespan)
+# Create MCP server with transport security configured for Railway
+# Disable DNS rebinding protection since Railway proxy handles security
+transport_security = TransportSecuritySettings(
+    enable_dns_rebinding_protection=False,
+)
+mcp = FastMCP("Okta MCP Server", lifespan=lifespan, transport_security=transport_security)
 
 
 # Health check endpoint
