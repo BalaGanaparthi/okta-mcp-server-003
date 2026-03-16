@@ -56,6 +56,7 @@ curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0.0"}}}'
+
 ```
 
 ### 4. Test with MCP Inspector
@@ -81,18 +82,19 @@ Push this repository to your GitHub account.
 
 In Railway dashboard, add these environment variables:
 
-| Variable | Description |
-|----------|-------------|
-| `OKTA_DOMAIN` | Your Okta domain (e.g., `dev-12345.okta.com`) |
-| `OKTA_API_TOKEN` | Your Okta API token |
+| Variable         | Description                                   |
+| ---------------- | --------------------------------------------- |
+| `OKTA_DOMAIN`    | Your Okta domain (e.g., `dev-12345.okta.com`) |
+| `OKTA_API_TOKEN` | Your Okta API token                           |
 
 Railway automatically provides the `PORT` variable.
 
 ### 4. Get Your Server URL
 
-After deployment, Railway provides a public URL like:
+After deployment, Railway provides a public URL:
+
 ```
-https://your-app.railway.app
+https://okta-mcp-server-003-production.up.railway.app
 ```
 
 ## Using with Claude Desktop
@@ -103,7 +105,7 @@ Add to your Claude Desktop MCP configuration (`claude_desktop_config.json`):
 {
   "mcpServers": {
     "okta": {
-      "url": "https://your-app.railway.app/mcp"
+      "url": "https://okta-mcp-server-003-production.up.railway.app/mcp"
     }
   }
 }
@@ -128,6 +130,7 @@ For local development:
 Create a new Okta user.
 
 **Parameters:**
+
 - `email` (required): User's email address
 - `first_name` (required): User's first name
 - `last_name` (required): User's last name
@@ -138,6 +141,7 @@ Create a new Okta user.
 List users with optional filtering.
 
 **Parameters:**
+
 - `limit` (optional): Maximum users to return (default: 20)
 - `search` (optional): Search query for filtering
 
@@ -146,6 +150,7 @@ List users with optional filtering.
 Get user by ID or login.
 
 **Parameters:**
+
 - `user_id` (required): User ID or login email
 
 ### update_user
@@ -153,6 +158,7 @@ Get user by ID or login.
 Update user profile.
 
 **Parameters:**
+
 - `user_id` (required): User ID or login email
 - `first_name` (optional): New first name
 - `last_name` (optional): New last name
@@ -163,6 +169,7 @@ Update user profile.
 Deactivate and permanently delete a user.
 
 **Parameters:**
+
 - `user_id` (required): User ID or login email
 
 ## Project Structure
