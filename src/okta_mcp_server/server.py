@@ -32,6 +32,13 @@ async def lifespan(server: FastMCP):
 mcp = FastMCP("Okta MCP Server", lifespan=lifespan)
 
 
+# Health check endpoint
+@mcp.custom_route("/health", methods=["GET"])
+async def health(request):
+    from starlette.responses import JSONResponse
+    return JSONResponse({"status": "ok", "service": "okta-mcp-server"})
+
+
 @mcp.tool()
 async def create_user(
     email: str,

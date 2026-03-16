@@ -51,14 +51,17 @@ docker-compose up --build
 # Check server health
 curl http://localhost:8000/health
 
-# List available tools (MCP endpoint)
-curl http://localhost:8000/mcp/v1/tools
+# Test MCP endpoint (initialize a session)
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0.0"}}}'
 ```
 
 ### 4. Test with MCP Inspector
 
 ```bash
-npx @anthropic/mcp-inspector http://localhost:8000
+npx @anthropic/mcp-inspector http://localhost:8000/mcp
 ```
 
 ## Railway Deployment
@@ -100,7 +103,7 @@ Add to your Claude Desktop MCP configuration (`claude_desktop_config.json`):
 {
   "mcpServers": {
     "okta": {
-      "url": "https://your-app.railway.app/mcp/v1"
+      "url": "https://your-app.railway.app/mcp"
     }
   }
 }
@@ -112,7 +115,7 @@ For local development:
 {
   "mcpServers": {
     "okta": {
-      "url": "http://localhost:8000/mcp/v1"
+      "url": "http://localhost:8000/mcp"
     }
   }
 }
