@@ -204,7 +204,14 @@ def main():
     app = mcp.streamable_http_app()
 
     # Run with uvicorn for custom host/port
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # proxy_headers and forwarded_allow_ips for Railway reverse proxy
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )
 
 
 if __name__ == "__main__":
