@@ -23,7 +23,7 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, api_key: str, exclude_paths: list[str] | None = None):
         super().__init__(app)
         self.api_key = api_key
-        self.exclude_paths = exclude_paths or []
+        self.exclude_paths = exclude_paths or ["/mcp"]
 
     async def dispatch(self, request: Request, call_next):
         # Skip auth for excluded paths (e.g., /health)
