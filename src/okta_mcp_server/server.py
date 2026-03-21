@@ -33,18 +33,21 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
         if request.url.path in self.exclude_paths:
             return await call_next(request)
 
-        # # Check x-api-key header
-        # provided_key = request.headers.get("x-api-key")
-        # if not provided_key:
-        #     return JSONResponse(
-        #         {"error": "Unauthorized", "message": "Missing x-api-key header"},
-        #         status_code=401,
-        #     )
-        # if provided_key != self.api_key:
-        #     return JSONResponse(
-        #         {"error": "Forbidden", "message": "Invalid API key"},
-        #         status_code=403,
-        #     )
+        # Check x-api-key/authorization header
+        provided_key = request.headers.get("x-api-key")
+        if not provided_key:
+            # ServiceNow sends apikey in authorization header
+            provided_key = request.headers.get("authorization")
+            if not provided_key:
+                return JSONResponse(
+                    {"error": "Unauthorized", "message": "Missing x-api-key header"},
+                    status_code=401,
+                )
+        if provided_key != self.api_key:
+            return JSONResponse(
+                {"error": "Forbidden", "message": "Invalid API key"},
+                status_code=403,
+            )
 
         return await call_next(request)
 
