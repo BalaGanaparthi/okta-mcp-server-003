@@ -59,7 +59,6 @@ async def printRequest(request):
     print('Headers:')
     for key, value in request.headers.items():
         print(f"  {key}: {value}")
-    print('---')
     try:
         body = await request.body()
         print(f'Body: {body.decode() if body else "(empty)"}\n---')
@@ -68,7 +67,6 @@ async def printRequest(request):
     print('Query Parameters:')
     for key, value in request.query_params.items():
         print(f"  {key}: {value}")
-    print('---\n')
 
 @asynccontextmanager
 async def lifespan(server: FastMCP):
