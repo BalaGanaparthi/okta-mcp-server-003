@@ -23,25 +23,25 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, api_key: str, exclude_paths: list[str] | None = None):
         super().__init__(app)
         self.api_key = api_key
-        self.exclude_paths = exclude_paths or ["/mcp"]
+        self.exclude_paths = exclude_paths or []
 
     async def dispatch(self, request: Request, call_next):
         # Skip auth for excluded paths (e.g., /health)
         if request.url.path in self.exclude_paths:
             return await call_next(request)
 
-        # Check x-api-key header
-        provided_key = request.headers.get("x-api-key")
-        if not provided_key:
-            return JSONResponse(
-                {"error": "Unauthorized", "message": "Missing x-api-key header"},
-                status_code=401,
-            )
-        if provided_key != self.api_key:
-            return JSONResponse(
-                {"error": "Forbidden", "message": "Invalid API key"},
-                status_code=403,
-            )
+        # # Check x-api-key header
+        # provided_key = request.headers.get("x-api-key")
+        # if not provided_key:
+        #     return JSONResponse(
+        #         {"error": "Unauthorized", "message": "Missing x-api-key header"},
+        #         status_code=401,
+        #     )
+        # if provided_key != self.api_key:
+        #     return JSONResponse(
+        #         {"error": "Forbidden", "message": "Invalid API key"},
+        #         status_code=403,
+        #     )
 
         return await call_next(request)
 
