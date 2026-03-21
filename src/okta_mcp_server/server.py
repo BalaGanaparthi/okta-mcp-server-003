@@ -26,14 +26,12 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
         self.exclude_paths = exclude_paths or []
 
     async def dispatch(self, request: Request, call_next):
-        
-        printRequest(request)
-        
+
+        await printRequest(request)
+
         # Skip auth for excluded paths (e.g., /health)
         if request.url.path in self.exclude_paths:
             return await call_next(request)
-
-        
 
         # # Check x-api-key header
         # provided_key = request.headers.get("x-api-key")
@@ -53,13 +51,20 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
 # Global Okta client instance
 okta_client: OktaClient | None = None
 
-def printRequest(request):
-    print(request.method + ' ' + request.url + '\n---\n')
-    print('Headers : \n ' + request.headers + '\n---\n')
-    print('Body : \n' + request.body + '\n---\n')
-    print('Query Parameters : \n')
-    for key, value in request.args.items():
-        print(f"  {key}: {value}\n")
+async def printRequest(request):
+    print(f'{request.method} {str(request.url)}\n---')
+    print('Headers:')
+    for key, value in request.headers.items():
+        print(f"  {key}: {value}")
+    print('---')
+    try:
+        body = await request.body()
+        print(f'Body: {body.decode() if body else "(empty)"}\n---')
+    except Exception as e:
+        print(f'Body: (could not read: {e})\n---')
+    print('Query Parameters:')
+    for key, value in request.query_params.items():
+        print(f"  {key}: {value}")
     print('---\n')
 
 @asynccontextmanager
