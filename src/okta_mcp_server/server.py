@@ -55,15 +55,15 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
 okta_client: OktaClient | None = None
 
 async def printRequest(request):
-    print(f'{request.method} {str(request.url)}\n---')
+    print(f'{request.method} {str(request.url)}')
     print('Headers:')
     for key, value in request.headers.items():
         print(f"  {key}: {value}")
     try:
         body = await request.body()
-        print(f'Body: {body.decode() if body else "(empty)"}\n---')
+        print(f'Body: {body.decode() if body else "(empty)"}')
     except Exception as e:
-        print(f'Body: (could not read: {e})\n---')
+        print(f'Body: (could not read: {e})')
     print('Query Parameters:')
     for key, value in request.query_params.items():
         print(f"  {key}: {value}")
